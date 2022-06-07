@@ -4,9 +4,17 @@ export CARGO_HOME:=$(STAGING_DIR_HOST)/lib/cargo
 CARGO_BIN:=$(CARGO_HOME)/bin
 
 # NOTE: The Rust target triplet does not always match the target triplet used
-# by OpenWrt. You can add exceptions for your target profile here:
-ifeq ($(CONFIG_TARGET_PROFILE),"DEVICE_cznic_turris-omnia")
+# by OpenWrt. You can add exceptions for your device here.
+
+# Turris MOX
+ifneq ($(findstring aarch64,$(CONFIG_ARCH)),)
+  RUST_TARGET := aarch64-unknown-linux-musl
+# Turris Omnia
+else ifneq ($(findstring arm,$(CONFIG_ARCH)),)
   RUST_TARGET := armv7-unknown-linux-musleabihf
+# Turris 1.x
+else ifneq ($(findstring powerpc,$(CONFIG_ARCH)),)
+  RUST_TARGET := powerpc_unknown_linux_muslspe
 else
   RUST_TARGET := $(shell echo $(CONFIG_ARCH)-unknown-linux-$(CONFIG_TARGET_SUFFIX))
 endif
