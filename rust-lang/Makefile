@@ -1,14 +1,17 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME := rust-lang
-PKG_LICENSE := Apache-2.0/MIT
-PKG_VERSION := 1.60.0
-PKG_RELEASE := 1
+PKG_NAME:=rust-lang
+PKG_VERSION:=1.24.3
+PKG_VERSION_TOOLCHAIN:=1.60.0
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/rust-lang/rustup.git
-PKG_SOURCE_VERSION:=1.24.3
+PKG_SOURCE_VERSION:=$(PKG_VERSION)
 PKG_MIRROR_HASH:=ba8ebb610aaf76127a475ae899dee44e57e81341965f37b3c534196c933fc2df
+
+PKG_LICENSE:=Apache-2.0 MIT
+PKG_LICENSE_FILES:=LICENSE-MIT LICENSE-APACHE
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -18,7 +21,7 @@ Build/Compile:=:
 
 define Host/Compile
 	sh $(HOST_BUILD_DIR)/rustup-init.sh -y \
-		--default-toolchain $(PKG_VERSION) \
+		--default-toolchain $(PKG_VERSION_TOOLCHAIN) \
 		--target $(RUST_TARGET) \
 		--profile minimal \
 		--no-modify-path
