@@ -4,10 +4,10 @@ PKG_NAME:=angelcam-connector
 PKG_VERSION:=0.10.1
 PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/angelcam/arrow-client.git
-PKG_SOURCE_VERSION:=v$(PKG_VERSION)
-PKG_MIRROR_HASH:=8651cb53d51642cac468948a0d40d2b04cec28e9ff046df254641b5a46cc8d87
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/angelcam/arrow-client/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=31d6be013efa4bbdfb59254f2d65469cdf10a4710955d5beab133d7a3e90d07d
+PKG_BUILD_DIR:=$(BUILD_DIR)/arrow-client-$(PKG_VERSION)
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
