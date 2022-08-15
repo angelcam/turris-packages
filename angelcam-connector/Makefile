@@ -1,52 +1,44 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME := angelcam-connector
-PKG_LICENSE := Apache-2.0
-PKG_VERSION := 0.10.1
-PKG_RELEASE := 1
+PKG_NAME:=angelcam-connector
+PKG_VERSION:=0.10.1
+PKG_RELEASE:=1
 
-PKG_BUILD_DEPENDS := rust-lang/host
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/angelcam/arrow-client/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=31d6be013efa4bbdfb59254f2d65469cdf10a4710955d5beab133d7a3e90d07d
+PKG_BUILD_DIR:=$(BUILD_DIR)/arrow-client-$(PKG_VERSION)
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/angelcam/arrow-client.git
-PKG_SOURCE_VERSION:=v$(PKG_VERSION)
-PKG_MIRROR_HASH:=8651cb53d51642cac468948a0d40d2b04cec28e9ff046df254641b5a46cc8d87
+PKG_LICENSE:=Apache-2.0
+PKG_LICENSE_FILES:=LICENSE
+PKG_MAINTAINER:=Angelcam Developers <dev@angelcam.com>
+
+PKG_BUILD_DEPENDS:=rust-lang/host
 
 include $(INCLUDE_DIR)/package.mk
-
-ifeq ($(CONFIG_TARGET_PROFILE),"DEVICE_cznic_turris-omnia")
-  RUST_TARGET := armv7-unknown-linux-musleabihf
-else
-  RUST_TARGET := $(shell echo $(CONFIG_ARCH)-unknown-linux-$(CONFIG_TARGET_SUFFIX))
-endif
+include ../rust-lang/files/rust-env.mk
 
 define Package/angelcam-connector
-  TITLE := Angelcam Connector
-  CATEGORY := Network
-  SECTION := net
-  DEPENDS := +libpcap +libopenssl
+  TITLE:=Angelcam Connector
+  CATEGORY:=Network
+  SECTION:=net
+  DEPENDS:=+libpcap +libopenssl
+  URL:=https://github.com/angelcam/arrow-client
 endef
 
 define Package/angelcam-connector/description
-  Angelcam Connector
-endef
+  Angelcam Connector is a simple service that allows you to connect your IP
+  cameras to Angelcam Cloud easily even if you are behind a NAT. There is no
+  need for port-forwarding or a public IP address.
 
-define CARGO_CONFIG
-[target.$(RUST_TARGET)]
-ar = "$(TARGET_AR)"
-linker = "$(TARGET_CC)"
-rustflags = [
-  "-C", "link-args=$(TARGET_LDFLAGS)",
-  "-C", "target-feature=-crt-static",
-]
+  The application opens a secure connection to Angelcam Cloud and it works as
+  a proxy for your IP cameras. It periodically scans your local network in
+  order to keep track of your IP cameras.
 endef
-
-export CARGO_CONFIG
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	mkdir $(PKG_BUILD_DIR)/.cargo
-	echo "$$$$CARGO_CONFIG" > $(PKG_BUILD_DIR)/.cargo/config
+	$(call Build/Prepare/Rust)
 endef
 
 define Build/Compile
@@ -54,9 +46,7 @@ define Build/Compile
 		cd $(PKG_BUILD_DIR) && \
 		export OPENSSL_LIB_DIR=$(STAGING_DIR)/usr/lib && \
 		export OPENSSL_INCLUDE_DIR=$(STAGING_DIR)/usr/include && \
-		export CC_$(subst -,_,$(RUST_TARGET))=$(TARGET_CC) && \
-		export CFLAGS_$(subst -,_,$(RUST_TARGET))="$(TARGET_CFLAGS)" && \
-		cargo +1.60.0 build \
+		cargo build \
 			--features "discovery threads" \
 			--release \
 			--target $(RUST_TARGET) \
@@ -77,19 +67,22 @@ endef
 
 define Package/angelcam-connector/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/etc/angelcam-connector
-	$(INSTALL_DIR) $(1)/usr/local/angelcam-connector
-	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/$(RUST_TARGET)/release/arrow-client \
-		$(1)/usr/bin/angelcam-connector
-	$(INSTALL_BIN) ./files/init-script $(1)/etc/init.d/angelcam-connector
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ca.pem $(1)/usr/local/angelcam-connector/
+	$(1)/usr/bin/angelcam-connector
+
+	$(INSTALL_DIR) $(1)/etc/angelcam-connector
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rtsp-paths $(1)/etc/angelcam-connector/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/mjpeg-paths $(1)/etc/angelcam-connector/
 	touch $(1)/etc/angelcam-connector/config.json
 	touch $(1)/etc/angelcam-connector/config-skel.json
 	chmod 600 $(1)/etc/angelcam-connector/config.json
 	chmod 600 $(1)/etc/angelcam-connector/config-skel.json
+
+	$(INSTALL_DIR) $(1)/usr/local/angelcam-connector
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ca.pem $(1)/usr/local/angelcam-connector/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/init-script $(1)/etc/init.d/angelcam-connector
 endef
 
 $(eval $(call BuildPackage,angelcam-connector))

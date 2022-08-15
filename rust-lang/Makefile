@@ -1,46 +1,55 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME := rust-lang
-PKG_LICENSE := Apache-2.0/MIT
-PKG_VERSION := 1.60.0
-PKG_RELEASE := 1
+PKG_NAME:=rust-lang
+PKG_VERSION:=1.25.1
+PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/rust-lang/rustup.git
-PKG_SOURCE_VERSION:=1.24.3
-PKG_MIRROR_HASH:=ba8ebb610aaf76127a475ae899dee44e57e81341965f37b3c534196c933fc2df
+PKG_SOURCE:=rustup-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/rust-lang/rustup/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=4d062c77b08309bd212f22dd7da1957c1882509c478e57762f34ec4fb2884c9a
+HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/rustup-$(PKG_VERSION)
 
-HOST_BUILD_DIR := $(BUILD_DIR_HOST)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_LICENSE:=Apache-2.0 MIT
+PKG_LICENSE_FILES:=LICENSE-MIT LICENSE-APACHE
 
-ADDITIONAL_TARGETS :=
+PKG_HOST_ONLY:=1
+HOST_BUILD_PARALLEL:=1
 
-ifeq ($(CONFIG_TARGET_PROFILE),"DEVICE_cznic_turris-omnia")
-  ADDITIONAL_TARGETS += armv7-unknown-linux-musleabihf
-else
-  ADDITIONAL_TARGETS += $(shell echo $(CONFIG_ARCH)-unknown-linux-$(CONFIG_TARGET_SUFFIX))
-endif
-
-include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/host-build.mk
+include ./files/rust-env.mk
 
 Build/Compile:=:
 
-define Host/Prepare
-	$(call Host/Prepare/Default)
-	chmod 755 $(HOST_BUILD_DIR)/rustup-init.sh
+define Package/rust-lang
+  SECTION:=lang
+  CATEGORY:=Languages
+  TITLE:=Rust programming language
+  URL:=https://www.rust-lang.org/
+  BUILDONLY:=1
 endef
 
 define Host/Compile
-	test -e $$$$HOME/.cargo/bin/rustup || $(HOST_BUILD_DIR)/rustup-init.sh -y --profile minimal
-	$$$$HOME/.cargo/bin/rustup toolchain install $(PKG_VERSION)
-	$$$$HOME/.cargo/bin/rustup target add --toolchain $(PKG_VERSION) $(ADDITIONAL_TARGETS)
+	sh $(HOST_BUILD_DIR)/rustup-init.sh -y \
+		--default-toolchain 1.60.0 \
+		--target $(RUST_TARGET) \
+		--profile minimal \
+		--no-modify-path
 endef
 
 define Host/Install
-	test -e $(STAGING_DIR_HOST)/bin/cargo || ln -s $$$$HOME/.cargo/bin/cargo $(STAGING_DIR_HOST)/bin/
-	test -e $(STAGING_DIR_HOST)/bin/rustc || ln -s $$$$HOME/.cargo/bin/rustc $(STAGING_DIR_HOST)/bin/
-	test -e $(STAGING_DIR_HOST)/bin/rustup || ln -s $$$$HOME/.cargo/bin/rustup $(STAGING_DIR_HOST)/bin/
+	ln -s $(CARGO_BIN)/cargo $(STAGING_DIR_HOST)/bin/
+	ln -s $(CARGO_BIN)/rustc $(STAGING_DIR_HOST)/bin/
+	ln -s $(CARGO_BIN)/rustup $(STAGING_DIR_HOST)/bin/
 endef
 
+define Host/Clean
+	$(call Host/Clean/Default)
+	-rm $(STAGING_DIR_HOST)/bin/cargo
+	-rm $(STAGING_DIR_HOST)/bin/rustc
+	-rm $(STAGING_DIR_HOST)/bin/rustup
+	-rm -rf $(RUSTUP_HOME) $(CARGO_HOME)
+endef
+
+$(eval $(call BuildPackage,rust-lang))
 $(eval $(call HostBuild))
-$(eval $(call Build/DefaultTargets))
