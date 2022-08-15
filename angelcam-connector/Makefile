@@ -1,27 +1,29 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME := angelcam-connector
-PKG_LICENSE := Apache-2.0
-PKG_VERSION := 0.10.1
-PKG_RELEASE := 1
+PKG_NAME:=angelcam-connector
+PKG_VERSION:=0.10.1
+PKG_RELEASE:=1
 
-PKG_BUILD_DEPENDS := rust-lang/host
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/angelcam/arrow-client/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=31d6be013efa4bbdfb59254f2d65469cdf10a4710955d5beab133d7a3e90d07d
+PKG_BUILD_DIR:=$(BUILD_DIR)/arrow-client-$(PKG_VERSION)
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/angelcam/arrow-client.git
-PKG_SOURCE_VERSION:=v$(PKG_VERSION)
-PKG_MIRROR_HASH:=8651cb53d51642cac468948a0d40d2b04cec28e9ff046df254641b5a46cc8d87
+PKG_LICENSE:=Apache-2.0
+PKG_LICENSE_FILES:=LICENSE
+PKG_MAINTAINER:=Angelcam Developers <dev@angelcam.com>
+
+PKG_BUILD_DEPENDS:=rust-lang/host
 
 include $(INCLUDE_DIR)/package.mk
 include ../rust-lang/files/rust-env.mk
 
 define Package/angelcam-connector
-  TITLE := Angelcam Connector
-  CATEGORY := Network
-  SECTION := net
-  DEPENDS := +libpcap +libopenssl
-  URL := https://github.com/angelcam/arrow-client
-  MAINTAINER := dev@angelcam.com
+  TITLE:=Angelcam Connector
+  CATEGORY:=Network
+  SECTION:=net
+  DEPENDS:=+libpcap +libopenssl
+  URL:=https://github.com/angelcam/arrow-client
 endef
 
 define Package/angelcam-connector/description
@@ -65,19 +67,22 @@ endef
 
 define Package/angelcam-connector/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_DIR) $(1)/etc/angelcam-connector
-	$(INSTALL_DIR) $(1)/usr/local/angelcam-connector
-	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/target/$(RUST_TARGET)/release/arrow-client \
-		$(1)/usr/bin/angelcam-connector
-	$(INSTALL_BIN) ./files/init-script $(1)/etc/init.d/angelcam-connector
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ca.pem $(1)/usr/local/angelcam-connector/
+	$(1)/usr/bin/angelcam-connector
+
+	$(INSTALL_DIR) $(1)/etc/angelcam-connector
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rtsp-paths $(1)/etc/angelcam-connector/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/mjpeg-paths $(1)/etc/angelcam-connector/
 	touch $(1)/etc/angelcam-connector/config.json
 	touch $(1)/etc/angelcam-connector/config-skel.json
 	chmod 600 $(1)/etc/angelcam-connector/config.json
 	chmod 600 $(1)/etc/angelcam-connector/config-skel.json
+
+	$(INSTALL_DIR) $(1)/usr/local/angelcam-connector
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ca.pem $(1)/usr/local/angelcam-connector/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/init-script $(1)/etc/init.d/angelcam-connector
 endef
 
 $(eval $(call BuildPackage,angelcam-connector))
