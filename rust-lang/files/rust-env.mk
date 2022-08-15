@@ -1,7 +1,4 @@
-export RUSTUP_HOME:=$(STAGING_DIR_HOST)/lib/rustup
-export CARGO_HOME:=$(STAGING_DIR_HOST)/lib/cargo
-
-CARGO_BIN:=$(CARGO_HOME)/bin
+include ../rustup/files/rustup-env.mk
 
 # NOTE: The Rust target triplet does not always match the target triplet used
 # by OpenWrt. You can add exceptions for your device here.
