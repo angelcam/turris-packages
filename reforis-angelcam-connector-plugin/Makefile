@@ -9,6 +9,7 @@ PKG_SOURCE_URL:=https://codeload.github.com/angelcam/reforis-angelcam-connector-
 PKG_HASH:=c047c81b1150185bc305c19b00a1fa976f0db3b4b8f66f11d376419b12a70aac
 
 PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_DEPENDS:=\
 	node/host \
