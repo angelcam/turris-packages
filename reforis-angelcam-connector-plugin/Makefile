@@ -4,7 +4,12 @@ PKG_NAME:=reforis-angelcam-connector-plugin
 PKG_VERSION:=0.1.0
 PKG_RELEASE:=1
 
-PKG_LICENSE:=Apache-2.0
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/angelcam/reforis-angelcam-connector-plugin/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=c047c81b1150185bc305c19b00a1fa976f0db3b4b8f66f11d376419b12a70aac
+
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=LICENSE
 
 PKG_BUILD_DEPENDS:=\
 	node/host \
@@ -31,12 +36,6 @@ define Package/reforis-angelcam-connector-plugin/description
 endef
 
 REFORIS_TRANSLATIONS:=en
-
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	cp -a src/* $(PKG_BUILD_DIR)
-	$(Build/Patch)
-endef
 
 $(eval $(call ReForisPlugin,reforis-angelcam-connector-plugin,reforis_angelcam_connector))
 # call BuildPackage <= assures OWR build system that this is package
