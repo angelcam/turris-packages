@@ -1,10 +1,7 @@
-export RUSTUP_HOME:=$(STAGING_DIR_HOST)/lib/rustup
-export CARGO_HOME:=$(STAGING_DIR_HOST)/lib/cargo
-
-CARGO_BIN:=$(CARGO_HOME)/bin
-
 # NOTE: The Rust target triplet does not always match the target triplet used
 # by OpenWrt. You can add exceptions for your device here.
+
+RUST_TARGET_LDFLAGS := $(TARGET_LDFLAGS)
 
 # Turris MOX
 ifneq ($(findstring aarch64,$(CONFIG_ARCH)),)
@@ -14,7 +11,8 @@ else ifneq ($(findstring arm,$(CONFIG_ARCH)),)
   RUST_TARGET := armv7-unknown-linux-musleabihf
 # Turris 1.x
 else ifneq ($(findstring powerpc,$(CONFIG_ARCH)),)
-  RUST_TARGET := powerpc_unknown_linux_muslspe
+  RUST_TARGET := powerpc-unknown-linux-muslspe
+  RUST_TARGET_LDFLAGS += -lssp_nonshared
 else
   RUST_TARGET := $(shell echo $(CONFIG_ARCH)-unknown-linux-$(CONFIG_TARGET_SUFFIX))
 endif
@@ -24,7 +22,7 @@ define CARGO_CONFIG
 ar = "$(TARGET_AR)"
 linker = "$(TARGET_CC)"
 rustflags = [
-  "-C", "link-args=$(TARGET_LDFLAGS)",
+  "-C", "link-args=$(RUST_TARGET_LDFLAGS)",
   "-C", "target-feature=-crt-static",
 ]
 endef

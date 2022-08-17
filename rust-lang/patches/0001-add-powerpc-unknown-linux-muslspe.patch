@@ -1,0 +1,47 @@
+diff -ruN a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
+--- a/compiler/rustc_target/src/spec/mod.rs	2022-08-08 22:46:10.000000000 +0000
++++ b/compiler/rustc_target/src/spec/mod.rs	2022-08-16 15:03:21.217243041 +0000
+@@ -831,6 +831,7 @@
+     ("powerpc-unknown-linux-gnu", powerpc_unknown_linux_gnu),
+     ("powerpc-unknown-linux-gnuspe", powerpc_unknown_linux_gnuspe),
+     ("powerpc-unknown-linux-musl", powerpc_unknown_linux_musl),
++    ("powerpc-unknown-linux-muslspe", powerpc_unknown_linux_muslspe),
+     ("powerpc64-unknown-linux-gnu", powerpc64_unknown_linux_gnu),
+     ("powerpc64-unknown-linux-musl", powerpc64_unknown_linux_musl),
+     ("powerpc64le-unknown-linux-gnu", powerpc64le_unknown_linux_gnu),
+diff -ruN a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs
+--- a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs	1970-01-01 00:00:00.000000000 +0000
++++ b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs	2022-08-16 15:05:26.697959986 +0000
+@@ -0,0 +1,21 @@
++use crate::abi::Endian;
++use crate::spec::{LinkerFlavor, Target, TargetOptions};
++
++pub fn target() -> Target {
++    let mut base = super::linux_musl_base::opts();
++    base.pre_link_args.entry(LinkerFlavor::Gcc).or_default().push("-mspe".into());
++    base.max_atomic_width = Some(32);
++
++    Target {
++        llvm_target: "powerpc-unknown-linux-muslspe".into(),
++        pointer_width: 32,
++        data_layout: "E-m:e-p:32:32-i64:64-n32".into(),
++        arch: "powerpc".into(),
++        options: TargetOptions {
++            abi: "spe".into(),
++            endian: Endian::Big,
++            mcount: "_mcount".into(),
++            ..base
++        },
++    }
++}
+diff -ruN a/src/doc/rustc/src/platform-support.md b/src/doc/rustc/src/platform-support.md
+--- a/src/doc/rustc/src/platform-support.md	2022-08-08 22:46:10.000000000 +0000
++++ b/src/doc/rustc/src/platform-support.md	2022-08-16 15:04:23.103610246 +0000
+@@ -265,6 +265,7 @@
+ `msp430-none-elf` | * |  | 16-bit MSP430 microcontrollers
+ `powerpc-unknown-linux-gnuspe` | ✓ |  | PowerPC SPE Linux
+ `powerpc-unknown-linux-musl` | ? |  |
++`powerpc-unknown-linux-muslspe` | ? |  | PowerPC SPE Linux
+ `powerpc-unknown-netbsd` | ✓ | ✓ |
+ `powerpc-unknown-openbsd` | ? |  |
+ `powerpc-wrs-vxworks-spe` | ? |  |
