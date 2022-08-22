@@ -1,7 +1,21 @@
-diff -ruN a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
---- a/compiler/rustc_target/src/spec/mod.rs	2022-08-08 22:46:10.000000000 +0000
-+++ b/compiler/rustc_target/src/spec/mod.rs	2022-08-16 15:03:21.217243041 +0000
-@@ -831,6 +831,7 @@
+From fd9502e7c6b358cf7eb04c2824c0aa8a0a9b7ca0 Mon Sep 17 00:00:00 2001
+From: Ondrej Perutka <ondrej.perutka@angelcam.com>
+Date: Mon, 22 Aug 2022 15:12:30 +0200
+Subject: [PATCH] Add powerpc-unknown-linux-muslspe target
+
+Co-authored-by: Josef Schlehofer <pepe.schlehofer@gmail.com>
+---
+ compiler/rustc_target/src/spec/mod.rs         |  1 +
+ .../src/spec/powerpc_unknown_linux_muslspe.rs | 21 +++++++++++++++++++
+ src/doc/rustc/src/platform-support.md         |  1 +
+ 3 files changed, 23 insertions(+)
+ create mode 100644 compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs
+
+diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
+index da0589cdd20..46bfd6c4ba2 100644
+--- a/compiler/rustc_target/src/spec/mod.rs
++++ b/compiler/rustc_target/src/spec/mod.rs
+@@ -831,6 +831,7 @@ fn $module() {
      ("powerpc-unknown-linux-gnu", powerpc_unknown_linux_gnu),
      ("powerpc-unknown-linux-gnuspe", powerpc_unknown_linux_gnuspe),
      ("powerpc-unknown-linux-musl", powerpc_unknown_linux_musl),
@@ -9,9 +23,11 @@ diff -ruN a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/sp
      ("powerpc64-unknown-linux-gnu", powerpc64_unknown_linux_gnu),
      ("powerpc64-unknown-linux-musl", powerpc64_unknown_linux_musl),
      ("powerpc64le-unknown-linux-gnu", powerpc64le_unknown_linux_gnu),
-diff -ruN a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs
---- a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs	1970-01-01 00:00:00.000000000 +0000
-+++ b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs	2022-08-16 15:05:26.697959986 +0000
+diff --git a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs
+new file mode 100644
+index 00000000000..44557a3bd70
+--- /dev/null
++++ b/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs
 @@ -0,0 +1,21 @@
 +use crate::abi::Endian;
 +use crate::spec::{LinkerFlavor, Target, TargetOptions};
@@ -34,10 +50,11 @@ diff -ruN a/compiler/rustc_target/src/spec/powerpc_unknown_linux_muslspe.rs b/co
 +        },
 +    }
 +}
-diff -ruN a/src/doc/rustc/src/platform-support.md b/src/doc/rustc/src/platform-support.md
---- a/src/doc/rustc/src/platform-support.md	2022-08-08 22:46:10.000000000 +0000
-+++ b/src/doc/rustc/src/platform-support.md	2022-08-16 15:04:23.103610246 +0000
-@@ -265,6 +265,7 @@
+diff --git a/src/doc/rustc/src/platform-support.md b/src/doc/rustc/src/platform-support.md
+index eb985803266..281080971c1 100644
+--- a/src/doc/rustc/src/platform-support.md
++++ b/src/doc/rustc/src/platform-support.md
+@@ -265,6 +265,7 @@ target | std | host | notes
  `msp430-none-elf` | * |  | 16-bit MSP430 microcontrollers
  `powerpc-unknown-linux-gnuspe` | ✓ |  | PowerPC SPE Linux
  `powerpc-unknown-linux-musl` | ? |  |
@@ -45,3 +62,6 @@ diff -ruN a/src/doc/rustc/src/platform-support.md b/src/doc/rustc/src/platform-s
  `powerpc-unknown-netbsd` | ✓ | ✓ |
  `powerpc-unknown-openbsd` | ? |  |
  `powerpc-wrs-vxworks-spe` | ? |  |
+-- 
+2.37.2
+
